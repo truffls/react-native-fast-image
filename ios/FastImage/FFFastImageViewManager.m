@@ -49,4 +49,31 @@ RCT_EXPORT_METHOD(clearDiskCache:(RCTPromiseResolveBlock)resolve reject:(RCTProm
     }];
 }
 
+RCT_EXPORT_METHOD(setupIgnoreTokenFromCache)
+{
+    SDWebImageCacheKeyFilter *cacheKeyFilter = [SDWebImageCacheKeyFilter cacheKeyFilterWithBlock:^NSString * _Nullable(NSURL * _Nonnull url) {
+      NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
+      
+      NSLog(@"setupIgnoreTokenFromCache %@", urlComponents.queryItems);      
+      
+      NSMutableArray *queryItemsNew = [NSMutableArray array];
+      
+      NSLog(@"setupIgnoreTokenFromCache query1 %@", urlComponents.query);
+      
+      for (NSURLQueryItem *queryItem in urlComponents.queryItems) {
+          if(![queryItem.name  isEqual: @"token"] ){
+              [queryItemsNew addObject:[NSURLQueryItem queryItemWithName:queryItem.name value:queryItem.value]];
+          }
+      }
+      urlComponents.queryItems = queryItemsNew;
+      
+      NSLog(@"setupIgnoreTokenFromCache query2 %@", urlComponents.query);
+      
+      NSLog(@"setupIgnoreTokenFromCache result %@", urlComponents.URL.absoluteString);
+      return urlComponents.URL.absoluteString;
+  }];
+
+  SDWebImageManager.sharedManager.cacheKeyFilter = cacheKeyFilter;
+}
+
 @end
